@@ -4,7 +4,7 @@ const { User } = require('../models')
 
 const userServices = {
   signUp: (req, cb) => {
-    if (req.body.password !== req.body.passwordCheck) throw new Error('Passwords do not match!')
+    if (req.body.password !== req.body.checkPassword) throw new Error('Passwords do not match!')
 
     User.findOne({ where: { email: req.body.email } })
       .then(user => {
