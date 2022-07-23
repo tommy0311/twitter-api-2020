@@ -21,7 +21,9 @@ const userServices = {
         })
       })
       .then(newUser => {
-        return cb(null, { user: JSON.stringify(newUser.toJSON()) })
+        const data = newUser.toJSON()
+        delete data.password
+        return cb(null, { user: data })
       })
       .catch(err => cb(err))
   }
