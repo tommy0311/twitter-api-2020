@@ -74,7 +74,7 @@ const userServices = {
       return cb(err)
     }
   },
-  getUserTweets: (req, cb) => {
+  getUserTweets: async (req, cb) => {
     const UserId = req.params.id
     try {
       const tweets = await Tweet.findAll({
