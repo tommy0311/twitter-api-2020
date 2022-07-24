@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const { User } = require('../models')
+const { User, Tweet, Reply, Like, Followship } = require('../models')
 
 const userServices = {
   signUp: (req, cb) => {
@@ -70,6 +70,100 @@ const userServices = {
       const userData = user.toJSON()
       delete userData.password
       return cb(null, userData)
+    } catch (err) {
+      return cb(err)
+    }
+  },
+  getUserTweets: (req, cb) => {
+    const UserId = req.params.id
+    Tweet.findAll({
+      where: { UserId },
+      include: [User],
+      nest: true,
+      raw: true
+    })
+      .then(tweets => cb(null, tweets))
+      .catch(err => cb(err))
+  },
+  getUserReplies: (req, cb) => {
+    const UserId = req.params.id
+    Reply.findAll({
+      where: { UserId },
+      include: [{ model: User }, { model: Tweet, include: [{ model: User }] }],
+      nest: true,
+      raw: true
+    })
+      .then(replies => cb(null, replies))
+      .catch(err => cb(err))
+  },
+  getUserLikes: async (req, cb) => {
+    const UserId = req.params.id
+    try {
+      const likedTweets = await Like.findAll({
+        where: { UserId },
+        include: [{ model: Tweet, include: [{ model: User }] }],
+        order: [['createdAt', 'DESC']],
+        nest: true,
+        raw: true
+      })
+
+      const results = []
+      await Promise.all(
+        likedTweets.map(async tweet => {
+          const TweetId = tweet.TweetId
+          const likeCount = await Like.count({ where: TweetId })
+          const replyCount = await Reply.count({ where: TweetId })
+          results.push({ ...tweet, Tweet: { ...tweet.Tweet, likeCount, replyCount } })
+        })
+      )
+      return cb(null, results)
+    } catch (err) {
+      cb(err)
+    }
+  },
+  addFollowing: async (req, cb) => {
+    try {
+      const followerId = req.user.id
+      const followingId = Number(req.params.followingId)
+      const [user, followship] = await Promise.all([
+        User.findByPk(followingId),
+        Followship.findOne({
+          where: {
+            followerId,
+            followingId
+          }
+        })
+      ])
+
+      if (!user) throw new Error("User didn't exist!")
+      if (followship) throw new Error('You are already following this user!')
+
+      await Followship.create({
+        followerId,
+        followingId
+      })
+
+      return cb(null, { followerId, followingId })
+    } catch (err) {
+      return cb(err)
+    }
+  },
+  getUserFollowings: async (req, cb) => {
+    try {
+      const followings = await Followship.findAll(
+        { where: { followerId: req.params.id } }
+      )
+      return cb(null, { followings })
+    } catch (err) {
+      return cb(err)
+    }
+  },
+  getUserFollowers: async (req, cb) => {
+    try {
+      const followers = await Followship.findAll(
+        { where: { followingId: req.params.id } }
+      )
+      return cb(null, { followers })
     } catch (err) {
       return cb(err)
     }
