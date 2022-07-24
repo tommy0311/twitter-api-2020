@@ -26,11 +26,13 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     hooks: {
       beforeCreate: user => {
-        if (!user.account) {
-          user.account = (Math.floor(Math.random() * 9999999999) + 1000000000).toString()
-        }
-        if (!user.email) {
-          user.email = 'mail@' + user.account + '.me'
+        if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'travis') {
+          if (!user.account) {
+            user.account = (Math.floor(Math.random() * 9999999999) + 1000000000).toString()
+          }
+          if (!user.email) {
+            user.email = 'mail@' + user.account + '.me'
+          }
         }
       }
     },
