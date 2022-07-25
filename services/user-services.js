@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const { User, Tweet, Reply, Like, Followship } = require('../models')
+const { imgurFileHandler } = require('../helpers/file-helpers')
 
 const userServices = {
   signUp: (req, cb) => {
@@ -58,6 +59,11 @@ const userServices = {
       const user = await User.findByPk(req.params.id)
       if (!user) return cb(Error("User didn't exist!"))
 
+      const avatarFile = req.files?.avatar[0]
+      const avatarPath = avatarFile ? await imgurFileHandler(req.files.avatar[0]) : undefined
+      const coverFile = req.files?.cover[0]
+      const coverPath = coverFile ? await imgurFileHandler(req.files.coverPath[0]) : undefined
+
       const hash = typeof req.body.password === 'string' ? await bcrypt.hash(req.body.password, 10) : undefined
 
       const updateData = {}
@@ -66,6 +72,8 @@ const userServices = {
       req.body.email && (updateData.email = req.body.email)
       hash && (updateData.password = hash)
       typeof req.body.introduction === 'string' && (updateData.introduction = req.body.introduction)
+      avatarPath && (updateData.avatar = avatarPath)
+      coverPath && (updateData.cover = coverPath)
 
       await user.update(updateData)
 
