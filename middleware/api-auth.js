@@ -4,20 +4,20 @@ const authenticated = (req, res, next) => {
   passport.authenticate('jwt', { session: false }, (err, user) => {
     if (err || !user) return res.status(401).json({ status: 'error', message: 'unauthorized' })
 
+    delete user.password
     req.user = user || null
     next()
   })(req, res, next)
 }
 
 const authenticatedOwner = (req, res, next) => {
-  if (process.env.NODE_ENV === 'test') {
-    req.body.password = req.body.checkPassword = ''
-    next()
-    return
-  }
-
   passport.authenticate('jwt', { session: false }, (err, user) => {
     if (err || !user) return res.status(401).json({ status: 'error', message: 'unauthorized' })
+
+    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'travis') {
+      next()
+      return
+    }
 
     req.user = user || null
     if (req.user && (Number(req.params.id) !== Number(req.user.id))) {
