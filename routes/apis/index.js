@@ -17,6 +17,8 @@ router.get('/users/:id/likes', authenticated, userController.getUserLikes)
 router.get('/users/:id/followings', authenticated, userController.getUserFollowings)
 router.get('/users/:id/followers', authenticated, userController.getUserFollowers)
 router.post('/followships/:followingId', authenticated, userController.addFollowing)
+router.post('/tweets/:id/like', authenticated, userController.addLike)
+router.post('/tweets/:id/unlike', authenticated, userController.unLike)
 router.use('/', apiErrorHandler)
 
 module.exports = router
