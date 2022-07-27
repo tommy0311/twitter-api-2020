@@ -296,6 +296,29 @@ const userServices = {
       console.log(err)
       return cb(err)
     }
+  },
+  addReply: async (req, cb) => {
+    try {
+      const UserId = Number(req.user.dataValues.id)
+      const TweetId = Number(req.params.tweet_id)
+      const { comment } = req.body
+
+      if (!comment) throw new Error('Comment text is required!')
+
+      const tweet = await Tweet.findByPk(TweetId)
+      if (!tweet) throw new Error("Tweet didn't exist!")
+
+      const reply = await Reply.create({
+        comment,
+        TweetId,
+        UserId
+      })
+
+      return cb(null, { reply: reply.toJSON() })
+    } catch (err) {
+      console.log(err)
+      return cb(err)
+    }
   }
 }
 
