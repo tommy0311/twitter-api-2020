@@ -173,9 +173,9 @@ const userServices = {
   },
   addFollowing: async (req, cb) => {
     try {
-      const followerId = req.user.id
-      const followingId = Number(req.params.followingId)
-      const [user, followship] = await Promise.all([
+      const followerId = Number(req.user.dataValues.id)
+      const followingId = Number(req.body.id)
+      const [followingUser, followship] = await Promise.all([
         User.findByPk(followingId),
         Followship.findOne({
           where: {
@@ -185,7 +185,7 @@ const userServices = {
         })
       ])
 
-      if (!user) throw new Error("User didn't exist!")
+      if (!followingUser) throw new Error("User didn't exist!")
       if (followship) throw new Error('You are already following this user!')
 
       await Followship.create({
@@ -193,7 +193,11 @@ const userServices = {
         followingId
       })
 
-      return cb(null, { followerId, followingId })
+      const followings = await Followship.findAll(
+        { where: { followerId: followerId } }
+      )
+
+      return cb(null, followings)
     } catch (err) {
       return cb(err)
     }
@@ -203,7 +207,7 @@ const userServices = {
       const followings = await Followship.findAll(
         { where: { followerId: req.params.id } }
       )
-      return cb(null, { followings })
+      return cb(null, followings)
     } catch (err) {
       return cb(err)
     }
@@ -213,7 +217,7 @@ const userServices = {
       const followers = await Followship.findAll(
         { where: { followingId: req.params.id } }
       )
-      return cb(null, { followers })
+      return cb(null, followers)
     } catch (err) {
       return cb(err)
     }
