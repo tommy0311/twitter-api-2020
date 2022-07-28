@@ -319,6 +319,24 @@ const userServices = {
       console.log(err)
       return cb(err)
     }
+  },
+  getReplies: async (req, cb) => {
+    try {
+      const TweetId = Number(req.params.tweet_id)
+
+      const replies = await Reply.findAll({
+        where: { TweetId },
+        include: [{ model: User, attributes: ['id', 'account', 'name', 'avatar'] }],
+        order: [['createdAt', 'DESC']],
+        nest: true,
+        raw: true
+      })
+
+      return cb(null, replies)
+    } catch (err) {
+      console.log(err)
+      return cb(err)
+    }
   }
 }
 
