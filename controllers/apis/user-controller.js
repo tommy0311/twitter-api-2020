@@ -55,10 +55,10 @@ const userController = {
         nest: true
         // raw: true
       })
-      console.log('getTweets', tweets)
+      // console.log('getTweets', tweets)
       return res.json(tweets)
     } catch (err) {
-      console.log('error=', err)
+      console.error(err)
     }
   },
   getCurrentUser: (req, res) => {
