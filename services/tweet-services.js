@@ -38,8 +38,8 @@ const tweetServices = {
       )
 
       let results = {}
-      const likeCount = await Like.count({ where: TweetId })
-      const replyCount = await Reply.count({ where: TweetId })
+      const likeCount = await Like.count({ where: { TweetId } })
+      const replyCount = await Reply.count({ where: { TweetId } })
       results = {
         ...tweet,
         likeCount,
