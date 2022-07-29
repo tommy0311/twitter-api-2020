@@ -33,6 +33,7 @@ router.get('/tweets/:tweet_id/replies', authenticated, userController.getReplies
 router.post('/tweets/:tweet_id/replies', authenticated, userController.addReply)
 router.post('/tweets/:id/like', authenticated, userController.addLike)
 router.post('/tweets/:id/unlike', authenticated, userController.unLike)
+router.post('/tweets', authenticated, tweetController.postTweet)
 router.get('/tweets/:id', authenticated, tweetController.getTweet)
 router.get('/tweets', authenticated, tweetController.getTweets)
 
