@@ -4,10 +4,13 @@ const router = express.Router()
 const passport = require('../../config/passport')
 const userController = require('../../controllers/apis/user-controller')
 const tweetController = require('../../controllers/apis/tweet-controller')
+const adminController = require('../../controllers/apis/admin-controller')
 
-const { authenticated, authenticatedOwner } = require('../../middleware/api-auth')
+const { authenticated, authenticatedOwner, authenticatedAdmin } = require('../../middleware/api-auth')
 const { apiErrorHandler } = require('../../middleware/error-handler')
 const upload = require('../../middleware/multer')
+
+router.get('/admin/users', authenticated, authenticatedAdmin, adminController.getUsers)
 
 router.get('/users/:id/tweets', authenticated, userController.getUserTweets)
 router.get('/users/:id/replied_tweets', authenticated, userController.getUserReplies)
@@ -37,7 +40,6 @@ router.post('/tweets/:tweet_id/replies', authenticated, userController.addReply)
 router.post('/tweets/:id/like', authenticated, userController.addLike)
 router.post('/tweets/:id/unlike', authenticated, userController.unLike)
 router.post('/tweets', authenticated, tweetController.postTweet)
-
 
 router.get('/get_current_user', authenticated, userController.getCurrentUser)
 router.get('/tweets/:id', authenticated, tweetController.getTweet)
